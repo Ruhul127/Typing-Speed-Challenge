@@ -1,0 +1,112 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    width: 80%;
+    max-width: 1400px;
+    background-color: #1e1e2f;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.left, .right {
+    flex: 1;
+    padding: 30px;
+}
+
+.header, .footer {
+    padding: 20px;
+    background-color: #2a3b5c;
+    color: #e3f2fd;
+    text-align: center;
+}
+
+.main {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#task {
+    font-size: 1.4rem;
+    padding: 10px;
+    background-color: #2a3b5c;
+    border: 2px solid #42a5f5;
+    border-radius: 5px;
+    color: #e3f2fd;
+}
+
+#userInput {
+    padding: 12px;
+    font-size: 1.2rem;
+    border: 2px solid #42a5f5;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: calc(100% - 24px);
+    background-color: #1e1e2f;
+    color: #e3f2fd;
+}
+
+#userInput::placeholder {
+    color: #9e9e9e;
+}
+
+#result {
+    font-size: 1.2rem;
+    color: #81c784;
+}
+
+#analytics {
+    font-size: 1.2rem;
+    color: #e3f2fd;
+    background-color: #2a3b5c;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+#timer {
+    font-size: 1.2rem;
+    color: #e57373;
+}
+
+button {
+    padding: 12px;
+    font-size: 1.2rem;
+    color: #ffffff;
+    background-color: #42a5f5;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #1e88e5;
+}
+
+.instructions {
+    background-color: #2a3b5c;
+    padding: 25px;
+    border-radius: 5px;
+    color: #e3f2fd;
+    font-size: 1.2rem;
+}
+
+.highlight {
+    background-color: #81c784;
+    color: #ffffff;
+    font-weight: bold;
+}

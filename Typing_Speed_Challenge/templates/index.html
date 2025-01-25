@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Challenge</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <div class="header">
+                <h1>Typing Speed Challenge</h1>
+            </div>
+            <div class="main">
+                <div id="task"></div>
+                <input type="text" id="userInput" placeholder="Type here..." autocomplete="off">
+                <div id="result"></div>
+                <div id="analytics"></div>
+                <div id="timer"></div>
+                <button id="restartGame" style="display:none;">Restart Game</button>
+            </div>
+            <div class="footer">
+                <p>Test and improve your typing speed and accuracy!</p>
+            </div>
+        </div>
+        <div class="right">
+            <div class="instructions">
+                <h2>Instructions</h2>
+                <p>1. Start typing the task shown as quickly and accurately as possible.</p>
+                <p>2. The timer begins on your first keystroke.</p>
+                <p>3. Complete as many tasks as possible within 60 seconds.</p>
+                <p>4. At the end, you will see the 3 words that took you the longest to type and your WPM.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let currentTaskIndex = 0;
+        let timerInterval;
+        let timeRemaining = 60;
+        let isTimerStarted = false;
+        let totalWordsTyped = 0;
+        let wordTypingTimes = {};
+        let wordStartTime = null;
+
+        function fetchTasks() {
+            fetch('/tasks')
+                .then(response => response.json())
+                .then(data => {
+                    tasks = data;
+                    loadTask();
+                });
+        }
+
+        function loadTask() {
+            if (currentTaskIndex < tasks.length) {
+                document.getElementById('task').innerHTML = tasks[currentTaskIndex];
+                document.getElementById('userInput').value = '';
+                wordStartTime = new Date();
+            }
+        }
+
+        document.getElementById('userInput').addEventListener('input', function () {
+            if (!isTimerStarted) {
+                isTimerStarted = true;
+                startTimer();
+            }
+
+            const userInput = this.value;
+            const currentTask = tasks[currentTaskIndex];
+
+            // Highlight correct words
+            const taskWords = currentTask.split(' ');
+            const userWords = userInput.trim().split(' ');
+            let highlightedTask = taskWords.map((word, index) => {
+                if (userWords[index] === word) {
+                    return `<span class="highlight">${word}</span>`;
+                } else {
+                    return word;
+                }
+            }).join(' ');
+
+            document.getElementById('task').innerHTML = highlightedTask;
+
+            if (userInput.trim() === currentTask) {
+                const currentTime = new Date();
+                const typingDuration = (currentTime - wordStartTime) / 1000;
+                wordStartTime = currentTime;
+
+                const taskWordsArray = currentTask.split(' ');
+                taskWordsArray.forEach((word, index) => {
+                    if (userWords[index] === word && word.length > 5) {
+                        if (!wordTypingTimes[word]) {
+                            wordTypingTimes[word] = typingDuration;
+                        } else {
+                            wordTypingTimes[word] += typingDuration;
+                        }
+                    }
+                });
+
+                totalWordsTyped += userWords.length;
+                currentTaskIndex++;
+                if (currentTaskIndex < tasks.length) {
+                    loadTask();
+                } else {
+                    endGame();
+                }
+            }
+        });
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('timer').textContent = `Time remaining: ${timeRemaining} seconds`;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            const sortedWords = Object.entries(wordTypingTimes)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(entry => entry[0]);
+
+            const WPM = Math.round((totalWordsTyped / 60) * 60);
+
+            document.getElementById('result').textContent = `Time's up! Your WPM is ${WPM}.`;
+            document.getElementById('analytics').innerHTML = `
+                <p>Words that took you the longest to type:</p>
+                <ul>${sortedWords.map(word => `<li>${word}</li>`).join('')}</ul>
+            `;
+            document.getElementById('userInput').style.display = 'none';
+            document.getElementById('restartGame').style.display = 'inline-block';
+        }
+
+        document.getElementById('restartGame').addEventListener('click', () => {
+            currentTaskIndex = 0;
+            totalWordsTyped = 0;
+            wordTypingTimes = {};
+            isTimerStarted = false;
+            timeRemaining = 60;
+            document.getElementById('userInput').style.display = 'block';
+            document.getElementById('restartGame').style.display = 'none';
+            document.getElementById('timer').textContent = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('analytics').textContent = '';
+            fetchTasks();
+        });
+
+        fetchTasks();
+    </script>
+</body>
+</html>
